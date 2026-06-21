@@ -1,8 +1,8 @@
-# VoiceScreen
+# AI Voice Interviewer
 
 > AI-powered voice interview platform — candidates complete structured interviews by voice, creators review AI-generated evaluations.
 
-**[Live demo →](https://voicescreen.app)** &nbsp;|&nbsp; **[Spec →](docs/SPEC.md)**
+**[Live demo →](https://ai-voice-interviewer.app)** &nbsp;|&nbsp; **[Spec →](docs/SPEC.md)**
 
 ---
 
@@ -38,8 +38,8 @@ See [docs/SPEC.md](docs/SPEC.md) for the full product and technical specificatio
 
 ```bash
 # 1. Clone and install
-git clone https://github.com/nidhishpkl/voicescreen.git
-cd voicescreen
+git clone https://github.com/nidhishpkl/ai-voice-interviewer.git
+cd ai-voice-interviewer
 pnpm install
 
 # 2. Configure environment

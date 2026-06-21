@@ -1,5 +1,5 @@
 {
-  "name": "voicescreen",
+  "name": "ai-voice-interviewer",
   "private": true,
   "scripts": {
     "dev": "turbo dev",
