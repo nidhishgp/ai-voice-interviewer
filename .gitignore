@@ -24,7 +24,6 @@ coverage/
 playwright-report/
 test-results/
 
-# Forge harness artifacts — never commit
 .pilot/
 
 # Logs
