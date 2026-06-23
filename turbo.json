@@ -13,10 +13,10 @@
       "cache": false,
       "persistent": true
     },
-    "lint": {
+    "typecheck": {
       "dependsOn": ["^build"]
     },
-    "type-check": {
+    "lint": {
       "dependsOn": ["^build"]
     },
     "test": {
