@@ -31,4 +31,5 @@ export const ROUTES = {
 export const LLM_PROVIDER = {
   ANTHROPIC: "anthropic",
   OPENAI: "openai",
+  OLLAMA: "ollama",
 } as const;
