@@ -1,6 +1,6 @@
-import type { CoreMessage } from "ai";
+import type { ModelMessage } from "ai";
 
-export type { CoreMessage };
+export type { ModelMessage };
 
 export interface STTProvider {
   transcribe(audio: Buffer, mimeType: string): Promise<string>;
