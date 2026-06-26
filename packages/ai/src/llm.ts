@@ -27,7 +27,8 @@ export function getLLMModel(model?: string): LanguageModel {
     }
     case LLM_PROVIDER.OLLAMA: {
       const baseURL = process.env["OLLAMA_BASE_URL"] ?? "http://localhost:11434";
-      return createOllama({ baseURL })(model ?? "gemma3:4b");
+      // ollama-ai-provider types lag behind AI SDK v7 — safe at runtime
+      return createOllama({ baseURL })(model ?? "gemma3:4b") as unknown as LanguageModel;
     }
     default:
       throw new Error(
