@@ -1,3 +1,7 @@
 packages:
   - "apps/*"
   - "packages/*"
+
+peerDependencyRules:
+  allowedVersions:
+    "ollama-ai-provider>zod": "4"
