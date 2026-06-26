@@ -1,5 +1,30 @@
 {
   "name": "@aivi/ai",
   "version": "0.1.0",
-  "private": true
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@ai-sdk/anthropic": "^1.0.0",
+    "@ai-sdk/google": "^1.0.0",
+    "@ai-sdk/openai": "^1.0.0",
+    "@aivi/types": "workspace:*",
+    "@deepgram/sdk": "^3.0.0",
+    "ai": "^4.0.0",
+    "ollama-ai-provider": "^1.0.0"
+  },
+  "devDependencies": {
+    "@aivi/config": "workspace:*",
+    "typescript": "^5.4.5",
+    "vitest": "^2.0.0"
+  }
 }
