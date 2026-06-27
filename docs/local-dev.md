@@ -70,7 +70,7 @@ docker compose up -d
 Verify LiveKit is healthy:
 
 ```bash
-curl http://localhost:7881/healthz
+curl http://localhost:7880
 # → OK
 ```
 
