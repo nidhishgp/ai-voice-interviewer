@@ -1,20 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { Database, Json } from "@aivi/types";
+import type { Database, Json, SessionTemplate, CandidateSession, TranscriptEntry } from "@aivi/types";
 
 export type TypedSupabaseClient = SupabaseClient<Database>;
-
-// Template types
-
-export interface SessionTemplate {
-  id: string;
-  creator_id: string;
-  title: string;
-  description: string | null;
-  questions: Json[];
-  is_active: boolean;
-  created_at: string;
-  updated_at: string;
-}
 
 export interface CreateTemplateInput {
   creator_id: string;
@@ -23,31 +10,11 @@ export interface CreateTemplateInput {
   questions?: Json[];
 }
 
-// Session types
-export interface CandidateSession {
-  id: string;
-  template_id: string;
-  share_token: string;
-  candidate_name: string | null;
-  candidate_email: string | null;
-  status: "pending" | "in_progress" | "completed" | "evaluated" | "expired";
-  transcript: TranscriptEntry[];
-  evaluation: Json | null;
-  started_at: string | null;
-  completed_at: string | null;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface TranscriptEntry {
-  role: "ai" | "candidate";
-  text: string;
-  timestamp: string;
-}
-
 export interface CreateSessionInput {
   template_id: string;
 }
+
+export type { SessionTemplate, CandidateSession, TranscriptEntry };
 
 // Template service functions
 
@@ -58,7 +25,7 @@ export async function createTemplate(
   const { data, error } = await supabase.from("session_templates").insert(input).select().single();
 
   if (error) throw new Error(error.message);
-  return data as SessionTemplate;
+  return data as unknown as SessionTemplate;
 }
 
 export async function getTemplate(
@@ -113,13 +80,15 @@ export async function deleteTemplate(
   id: string,
   creatorId: string
 ): Promise<void> {
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from("session_templates")
     .delete()
     .eq("id", id)
-    .eq("creator_id", creatorId);
+    .eq("creator_id", creatorId)
+    .select("id");
 
   if (error) throw new Error(error.message);
+  if (!data || data.length === 0) throw new Error("Template not found or not owned by creator");
 }
 
 // Session service functions
@@ -165,9 +134,16 @@ export async function updateSessionTranscript(
 export async function updateSessionStatus(
   supabase: TypedSupabaseClient,
   id: string,
+  templateId: string,
   status: CandidateSession["status"]
 ): Promise<void> {
-  const { error } = await supabase.from("candidate_sessions").update({ status }).eq("id", id);
+  const completed_at = status === "completed" ? new Date().toISOString() : undefined;
+
+  const { error } = await supabase
+    .from("candidate_sessions")
+    .update({ status, ...(completed_at !== undefined && { completed_at }) })
+    .eq("id", id)
+    .eq("template_id", templateId);
 
   if (error) throw new Error(error.message);
 }
@@ -175,12 +151,14 @@ export async function updateSessionStatus(
 export async function updateSessionEvaluation(
   supabase: TypedSupabaseClient,
   id: string,
+  templateId: string,
   evaluation: Json
 ): Promise<void> {
   const { error } = await supabase
     .from("candidate_sessions")
-    .update({ evaluation, completed_at: new Date().toISOString() })
-    .eq("id", id);
+    .update({ evaluation })
+    .eq("id", id)
+    .eq("template_id", templateId);
 
   if (error) throw new Error(error.message);
 }

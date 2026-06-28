@@ -49,7 +49,7 @@ describe("SessionTemplateSchema", () => {
     expect(result.success).toBe(true);
   });
 
-  it("accepts an empty questions array", () => {
+  it("rejects an empty questions array", () => {
     const result = SessionTemplateSchema.safeParse({
       id: "223e4567-e89b-12d3-a456-426614174000",
       creator_id: "323e4567-e89b-12d3-a456-426614174000",
@@ -60,7 +60,25 @@ describe("SessionTemplateSchema", () => {
       created_at: "2026-06-23T00:00:00.000Z",
       updated_at: "2026-06-23T00:00:00.000Z",
     });
-    expect(result.success).toBe(true);
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects questions array longer than 20", () => {
+    const questions = Array.from({ length: 21 }, (_, i) => ({
+      id: i + 1,
+      text: `Question ${i + 1}`,
+    }));
+    const result = SessionTemplateSchema.safeParse({
+      id: "223e4567-e89b-12d3-a456-426614174000",
+      creator_id: "323e4567-e89b-12d3-a456-426614174000",
+      title: "Frontend Engineer Interview",
+      description: null,
+      questions,
+      is_active: true,
+      created_at: "2026-06-23T00:00:00.000Z",
+      updated_at: "2026-06-23T00:00:00.000Z",
+    });
+    expect(result.success).toBe(false);
   });
 
   it("rejects missing creator_id", () => {
@@ -68,7 +86,7 @@ describe("SessionTemplateSchema", () => {
       id: "223e4567-e89b-12d3-a456-426614174000",
       title: "Frontend Engineer Interview",
       description: null,
-      questions: [],
+      questions: [validQuestion],
       is_active: true,
       created_at: "2026-06-23T00:00:00.000Z",
       updated_at: "2026-06-23T00:00:00.000Z",
