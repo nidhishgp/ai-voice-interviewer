@@ -11,66 +11,65 @@ import {
 describe("QuestionSchema", () => {
   it("accepts a valid question", () => {
     const result = QuestionSchema.safeParse({
-      id: "123e4567-e89b-12d3-a456-426614174000",
+      id: 1,
       text: "Tell me about yourself",
-      order: 0,
-      follow_up_prompt: null,
+      duration_seconds: 120,
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("accepts a question without duration_seconds", () => {
+    const result = QuestionSchema.safeParse({
+      id: 0,
+      text: "Tell me about yourself",
     });
     expect(result.success).toBe(true);
   });
 
   it("rejects empty text", () => {
-    const result = QuestionSchema.safeParse({
-      id: "123e4567-e89b-12d3-a456-426614174000",
-      text: "",
-      order: 0,
-      follow_up_prompt: null,
-    });
+    const result = QuestionSchema.safeParse({ id: 1, text: "" });
     expect(result.success).toBe(false);
   });
 });
 
 describe("SessionTemplateSchema", () => {
-  const validQuestion = {
-    id: "123e4567-e89b-12d3-a456-426614174000",
-    text: "Tell me about yourself",
-    order: 0,
-    follow_up_prompt: null,
-  };
+  const validQuestion = { id: 1, text: "Tell me about yourself.", duration_seconds: 120 };
 
   it("accepts a valid template", () => {
     const result = SessionTemplateSchema.safeParse({
       id: "223e4567-e89b-12d3-a456-426614174000",
-      owner_id: "323e4567-e89b-12d3-a456-426614174000",
+      creator_id: "323e4567-e89b-12d3-a456-426614174000",
       title: "Frontend Engineer Interview",
       description: null,
       questions: [validQuestion],
+      is_active: true,
       created_at: "2026-06-23T00:00:00.000Z",
       updated_at: "2026-06-23T00:00:00.000Z",
     });
     expect(result.success).toBe(true);
   });
 
-  it("rejects empty questions array", () => {
+  it("accepts an empty questions array", () => {
     const result = SessionTemplateSchema.safeParse({
       id: "223e4567-e89b-12d3-a456-426614174000",
-      owner_id: "323e4567-e89b-12d3-a456-426614174000",
+      creator_id: "323e4567-e89b-12d3-a456-426614174000",
       title: "Frontend Engineer Interview",
       description: null,
       questions: [],
+      is_active: true,
       created_at: "2026-06-23T00:00:00.000Z",
       updated_at: "2026-06-23T00:00:00.000Z",
     });
-    expect(result.success).toBe(false);
+    expect(result.success).toBe(true);
   });
 
-  it("rejects questions array longer than 20", () => {
+  it("rejects missing creator_id", () => {
     const result = SessionTemplateSchema.safeParse({
       id: "223e4567-e89b-12d3-a456-426614174000",
-      owner_id: "323e4567-e89b-12d3-a456-426614174000",
       title: "Frontend Engineer Interview",
       description: null,
-      questions: Array.from({ length: 21 }, (_, i) => ({ ...validQuestion, order: i })),
+      questions: [],
+      is_active: true,
       created_at: "2026-06-23T00:00:00.000Z",
       updated_at: "2026-06-23T00:00:00.000Z",
     });
@@ -83,39 +82,41 @@ describe("CandidateSessionSchema", () => {
     const result = CandidateSessionSchema.safeParse({
       id: "123e4567-e89b-12d3-a456-426614174000",
       template_id: "223e4567-e89b-12d3-a456-426614174000",
-      candidate_name: "Jane Doe",
-      candidate_email: null,
-      status: "pending",
-      transcript: [],
-      evaluation: null,
       share_token: "323e4567-e89b-12d3-a456-426614174000",
-      started_at: null,
-      completed_at: null,
-      created_at: "2026-06-23T00:00:00.000Z",
-    });
-    expect(result.success).toBe(false);
-  });
-
-  it("accepts a valid session with null evaluation", () => {
-    const result = CandidateSessionSchema.safeParse({
-      id: "123e4567-e89b-12d3-a456-426614174000",
-      template_id: "223e4567-e89b-12d3-a456-426614174000",
       candidate_name: "Jane Doe",
       candidate_email: null,
       status: "scheduled",
       transcript: [],
       evaluation: null,
-      share_token: "323e4567-e89b-12d3-a456-426614174000",
       started_at: null,
       completed_at: null,
       created_at: "2026-06-23T00:00:00.000Z",
+      updated_at: "2026-06-23T00:00:00.000Z",
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("accepts a valid session with pending status", () => {
+    const result = CandidateSessionSchema.safeParse({
+      id: "123e4567-e89b-12d3-a456-426614174000",
+      template_id: "223e4567-e89b-12d3-a456-426614174000",
+      share_token: "323e4567-e89b-12d3-a456-426614174000",
+      candidate_name: "Jane Doe",
+      candidate_email: null,
+      status: "pending",
+      transcript: [],
+      evaluation: null,
+      started_at: null,
+      completed_at: null,
+      created_at: "2026-06-23T00:00:00.000Z",
+      updated_at: "2026-06-23T00:00:00.000Z",
     });
     expect(result.success).toBe(true);
   });
 });
 
 describe("EvaluationSchema", () => {
-  it("validates perQuestionFeedback shape", () => {
+  it("validates per_question_feedback shape", () => {
     const result = EvaluationSchema.safeParse({
       overall_score: 85,
       summary: "Strong candidate with good communication skills",
@@ -123,7 +124,7 @@ describe("EvaluationSchema", () => {
       improvements: ["Could improve system design depth"],
       per_question_feedback: [
         {
-          question_id: "123e4567-e89b-12d3-a456-426614174000",
+          question_id: 1,
           score: 8,
           feedback: "Answered clearly with good examples",
         },
@@ -140,7 +141,7 @@ describe("EvaluationSchema", () => {
       improvements: [],
       per_question_feedback: [
         {
-          question_id: "not-a-uuid",
+          question_id: "not-a-number",
           score: 8,
           feedback: "Good answer",
         },
@@ -151,22 +152,20 @@ describe("EvaluationSchema", () => {
 });
 
 describe("TranscriptEntrySchema", () => {
-  it("accepts valid agent speaker", () => {
+  it("accepts valid ai role", () => {
     const result = TranscriptEntrySchema.safeParse({
-      id: "123e4567-e89b-12d3-a456-426614174000",
-      speaker: "agent",
+      role: "ai",
       text: "Tell me about yourself",
-      timestamp_ms: 0,
+      timestamp: "2026-06-23T00:00:00.000Z",
     });
     expect(result.success).toBe(true);
   });
 
-  it("rejects invalid speaker enum", () => {
+  it("rejects invalid role enum", () => {
     const result = TranscriptEntrySchema.safeParse({
-      id: "123e4567-e89b-12d3-a456-426614174000",
-      speaker: "interviewer",
+      role: "interviewer",
       text: "Tell me about yourself",
-      timestamp_ms: 0,
+      timestamp: "2026-06-23T00:00:00.000Z",
     });
     expect(result.success).toBe(false);
   });

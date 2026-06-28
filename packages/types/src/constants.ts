@@ -1,10 +1,11 @@
 // Session status
 
 export const SESSION_STATUS = {
-  SCHEDULED: "scheduled",
+  PENDING: "pending",
   IN_PROGRESS: "in_progress",
   COMPLETED: "completed",
-  CANCELLED: "cancelled",
+  EVALUATED: "evaluated",
+  EXPIRED: "expired",
 } as const;
 
 // LiveKit / WebRTC events

@@ -3,38 +3,39 @@ import { z } from "zod";
 // Question
 
 export const QuestionSchema = z.object({
-  id: z.string().uuid(),
+  id: z.number().int().nonnegative(),
   text: z.string().min(1).max(1000),
-  order: z.number().int().nonnegative(),
-  follow_up_prompt: z.string().max(500).nullable(),
+  duration_seconds: z.number().int().positive().optional(),
 });
 
 export type Question = z.infer<typeof QuestionSchema>;
 
-// SessiontTemplate
+// SessionTemplate
 
 export const SessionTemplateSchema = z.object({
-  id: z.string().uuid(),
-  owner_id: z.string().uuid(),
+  id: z.uuid(),
+  creator_id: z.uuid(),
   title: z.string().min(1).max(200),
   description: z.string().max(1000).nullable(),
-  questions: z.array(QuestionSchema).min(1).max(20),
-  created_at: z.string().datetime(),
-  updated_at: z.string().datetime(),
+  questions: z.array(QuestionSchema),
+  is_active: z.boolean(),
+  created_at: z.iso.datetime(),
+  updated_at: z.iso.datetime(),
 });
 
 export type SessionTemplate = z.infer<typeof SessionTemplateSchema>;
 
-// CandidateSession
+// TranscriptEntry
 
 export const TranscriptEntrySchema = z.object({
-  id: z.string().uuid(),
-  speaker: z.enum(["agent", "candidate"]),
+  role: z.enum(["ai", "candidate"]),
   text: z.string().min(1),
-  timestamp_ms: z.number().int().nonnegative(),
+  timestamp: z.iso.datetime(),
 });
 
 export type TranscriptEntry = z.infer<typeof TranscriptEntrySchema>;
+
+// Evaluation
 
 export const EvaluationSchema = z.object({
   overall_score: z.number().min(0).max(100),
@@ -43,7 +44,7 @@ export const EvaluationSchema = z.object({
   improvements: z.array(z.string()),
   per_question_feedback: z.array(
     z.object({
-      question_id: z.string().uuid(),
+      question_id: z.number().int().nonnegative(),
       score: z.number().min(0).max(10),
       feedback: z.string(),
     })
@@ -52,18 +53,21 @@ export const EvaluationSchema = z.object({
 
 export type Evaluation = z.infer<typeof EvaluationSchema>;
 
+// CandidateSession
+
 export const CandidateSessionSchema = z.object({
-  id: z.string().uuid(),
-  template_id: z.string().uuid(),
-  candidate_name: z.string().min(1).max(200),
-  candidate_email: z.string().email().nullable(),
-  status: z.enum(["scheduled", "in_progress", "completed", "cancelled"]),
+  id: z.uuid(),
+  template_id: z.uuid(),
+  share_token: z.uuid(),
+  candidate_name: z.string().nullable(),
+  candidate_email: z.email().nullable(),
+  status: z.enum(["pending", "in_progress", "completed", "evaluated", "expired"]),
   transcript: z.array(TranscriptEntrySchema),
   evaluation: EvaluationSchema.nullable(),
-  share_token: z.string().uuid(),
-  started_at: z.string().datetime().nullable(),
-  completed_at: z.string().datetime().nullable(),
-  created_at: z.string().datetime(),
+  started_at: z.iso.datetime().nullable(),
+  completed_at: z.iso.datetime().nullable(),
+  created_at: z.iso.datetime(),
+  updated_at: z.iso.datetime(),
 });
 
 export type CandidateSession = z.infer<typeof CandidateSessionSchema>;
