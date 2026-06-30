@@ -1,8 +1,10 @@
 import Fastify from "fastify";
 import sensible from "@fastify/sensible";
 import cors from "@fastify/cors";
+import { serializerCompiler, validatorCompiler } from "fastify-type-provider-zod";
 
 import { env } from "./env";
+import templatesPlugin from "./routes/templates";
 
 export async function createApp() {
   const app = Fastify({
@@ -15,6 +17,9 @@ export async function createApp() {
     },
   });
 
+  app.setValidatorCompiler(validatorCompiler);
+  app.setSerializerCompiler(serializerCompiler);
+
   await app.register(sensible);
   await app.register(cors, {
     origin: env.CORS_ORIGIN,
@@ -24,6 +29,8 @@ export async function createApp() {
   app.get("/health", async () => {
     return { status: "ok" };
   });
+
+  await app.register(templatesPlugin);
 
   return app;
 }
