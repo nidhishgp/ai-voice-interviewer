@@ -89,32 +89,38 @@ export type Database = {
       }
       session_templates: {
         Row: {
+          candidate_instructions: string | null
           created_at: string
           creator_id: string
           description: string | null
           id: string
           is_active: boolean
           questions: Json
+          system_prompt: string | null
           title: string
           updated_at: string
         }
         Insert: {
+          candidate_instructions?: string | null
           created_at?: string
           creator_id: string
           description?: string | null
           id?: string
           is_active?: boolean
           questions?: Json
+          system_prompt?: string | null
           title: string
           updated_at?: string
         }
         Update: {
+          candidate_instructions?: string | null
           created_at?: string
           creator_id?: string
           description?: string | null
           id?: string
           is_active?: boolean
           questions?: Json
+          system_prompt?: string | null
           title?: string
           updated_at?: string
         }

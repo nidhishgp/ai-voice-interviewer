@@ -17,12 +17,16 @@ import {
 const CreateTemplateBody = z.object({
   title: z.string().min(1).max(200),
   description: z.string().max(1000).optional(),
+  candidate_instructions: z.string().nullable().optional(),
+  system_prompt: z.string().nullable().optional(),
   questions: z.array(QuestionSchema).optional(),
 });
 
 const UpdateTemplateBody = z.object({
   title: z.string().min(1).max(200).optional(),
   description: z.string().max(1000).nullable().optional(),
+  candidate_instructions: z.string().nullable().optional(),
+  system_prompt: z.string().nullable().optional(),
   questions: z.array(QuestionSchema).optional(),
   is_active: z.boolean().optional(),
 });

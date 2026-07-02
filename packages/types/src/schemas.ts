@@ -17,6 +17,8 @@ export const SessionTemplateSchema = z.object({
   creator_id: z.uuid(),
   title: z.string().min(1).max(200),
   description: z.string().max(1000).nullable(),
+  candidate_instructions: z.string().nullable(),
+  system_prompt: z.string().nullable(),
   questions: z.array(QuestionSchema).min(1).max(20),
   is_active: z.boolean(),
   created_at: z.iso.datetime(),

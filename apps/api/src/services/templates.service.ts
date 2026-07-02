@@ -5,6 +5,8 @@ import type { TypedSupabaseClient } from "../lib/supabase";
 export interface CreateTemplateInput {
   title: string;
   description?: string | null | undefined;
+  candidate_instructions?: string | null | undefined;
+  system_prompt?: string | null | undefined;
   questions?: Question[] | undefined;
   creator_id: string;
 }
@@ -12,6 +14,8 @@ export interface CreateTemplateInput {
 export interface UpdateTemplateInput {
   title?: string | undefined;
   description?: string | null | undefined;
+  candidate_instructions?: string | null | undefined;
+  system_prompt?: string | null | undefined;
   questions?: Question[] | undefined;
   is_active?: boolean | undefined;
 }
@@ -19,6 +23,8 @@ export interface UpdateTemplateInput {
 type UpdatePayload = {
   title?: string;
   description?: string | null;
+  candidate_instructions?: string | null;
+  system_prompt?: string | null;
   questions?: Json;
   is_active?: boolean;
 };
@@ -47,6 +53,8 @@ export async function createTemplate(
       creator_id: data.creator_id,
       title: data.title,
       description: data.description ?? null,
+      candidate_instructions: data.candidate_instructions ?? null,
+      system_prompt: data.system_prompt ?? null,
       questions: data.questions as unknown as Json,
     })
     .select()
@@ -82,6 +90,10 @@ export async function updateTemplate(
   const payload: UpdatePayload = {
     ...(data.title !== undefined && { title: data.title }),
     ...(data.description !== undefined && { description: data.description }),
+    ...(data.candidate_instructions !== undefined && {
+      candidate_instructions: data.candidate_instructions,
+    }),
+    ...(data.system_prompt !== undefined && { system_prompt: data.system_prompt }),
     ...(data.questions !== undefined && { questions: data.questions as unknown as Json }),
     ...(data.is_active !== undefined && { is_active: data.is_active }),
   };
