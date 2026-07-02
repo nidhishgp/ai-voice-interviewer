@@ -44,17 +44,7 @@ export async function startSession(
   shareToken: string,
   input: StartSessionInput
 ): Promise<StartSessionResult> {
-  const { data: sessionRow, error: sessionError } = await supabase
-    .from("candidate_sessions")
-    .select("id, status")
-    .eq("share_token", shareToken)
-    .single();
-
-  if (sessionError?.code === "PGRST116") throw new Error("SESSION_NOT_FOUND");
-  if (sessionError) throw new Error(sessionError.message);
-  if (sessionRow.status !== "pending") throw new Error("SESSION_ALREADY_STARTED");
-
-  const { data: updated, error: updateError } = await supabase
+  const { data: claimed, error } = await supabase
     .from("candidate_sessions")
     .update({
       candidate_name: input.candidateName,
@@ -63,15 +53,23 @@ export async function startSession(
       started_at: new Date().toISOString(),
     })
     .eq("share_token", shareToken)
+    .eq("status", "pending")
     .select("id")
-    .single();
+    .maybeSingle();
 
-  if (updateError) throw new Error(updateError.message);
+  if (error) throw new Error(error.message);
 
-  const sessionId = updated.id;
-  const roomName = `interview-${sessionId}`;
+  if (!claimed) {
+    const { data: existing } = await supabase
+      .from("candidate_sessions")
+      .select("id")
+      .eq("share_token", shareToken)
+      .maybeSingle();
 
-  return { sessionId, roomName };
+    throw new Error(existing ? "SESSION_ALREADY_STARTED" : "SESSION_NOT_FOUND");
+  }
+
+  return { sessionId: claimed.id, roomName: `interview-${claimed.id}` };
 }
 
 export async function getSession(
@@ -116,12 +114,10 @@ export async function appendTranscript(
   sessionId: string,
   entries: TranscriptEntry[]
 ): Promise<void> {
-  for (const entry of entries) {
-    const { error } = await supabase.rpc("append_transcript_entry", {
-      session_id: sessionId,
-      entry: entry as unknown as Json,
-    });
+  const { error } = await supabase.rpc("append_transcript_entries", {
+    session_id: sessionId,
+    entries: entries as unknown as Json,
+  });
 
-    if (error) throw new Error(error.message);
-  }
+  if (error) throw new Error(error.message);
 }

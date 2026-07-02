@@ -2,19 +2,18 @@ import { randomUUID } from "node:crypto";
 
 import { describe, it, expect, beforeEach, vi } from "vitest";
 
+import { env } from "../env";
+import { createApp } from "../server";
+import { createSupabaseClient } from "../lib/supabase";
+import { seedTemplate, seedSession } from "../test/helpers";
+
+const INTERNAL_SECRET = env.INTERNAL_SECRET;
 const CREATOR_ID = "00000000-0000-0000-0000-000000000023";
-const INTERNAL_SECRET = "test-internal-secret-32-chars-ok";
+const NON_EXISTENT_SESSION_ID = randomUUID();
 
 vi.mock("../middleware/auth", () => ({
   authMiddleware: async () => {},
 }));
-
-process.env.INTERNAL_SECRET = INTERNAL_SECRET;
-const NON_EXISTENT_SESSION_ID = randomUUID();
-
-import { createApp } from "../server";
-import { createSupabaseClient } from "../lib/supabase";
-import { seedTemplate, seedSession } from "../test/helpers";
 
 async function cleanUp() {
   const supabase = createSupabaseClient();

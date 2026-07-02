@@ -7,6 +7,7 @@ import { TranscriptEntrySchema } from "@aivi/types";
 
 import { createSupabaseClient } from "../lib/supabase";
 import { completeSession, appendTranscript } from "../services/sessions.service";
+import { env } from "../env";
 
 const SessionParams = z.object({
   id: z.string().uuid(),
@@ -18,7 +19,7 @@ const TranscriptBody = z.object({
 
 async function verifyInternalSecret(request: FastifyRequest, reply: FastifyReply) {
   const provided = request.headers["x-internal-secret"];
-  const expected = process.env.INTERNAL_SECRET ?? "";
+  const expected = env.INTERNAL_SECRET;
 
   if (typeof provided !== "string") {
     return reply.status(401).send({ error: "Unauthorized" });

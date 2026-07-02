@@ -131,6 +131,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      append_transcript_entries: {
+        Args: { entries: Json; session_id: string }
+        Returns: undefined
+      }
       append_transcript_entry: {
         Args: { entry: Json; session_id: string }
         Returns: undefined
