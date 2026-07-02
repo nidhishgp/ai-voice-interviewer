@@ -89,32 +89,38 @@ export type Database = {
       }
       session_templates: {
         Row: {
+          candidate_instructions: string | null
           created_at: string
           creator_id: string
           description: string | null
           id: string
           is_active: boolean
           questions: Json
+          system_prompt: string | null
           title: string
           updated_at: string
         }
         Insert: {
+          candidate_instructions?: string | null
           created_at?: string
           creator_id: string
           description?: string | null
           id?: string
           is_active?: boolean
           questions?: Json
+          system_prompt?: string | null
           title: string
           updated_at?: string
         }
         Update: {
+          candidate_instructions?: string | null
           created_at?: string
           creator_id?: string
           description?: string | null
           id?: string
           is_active?: boolean
           questions?: Json
+          system_prompt?: string | null
           title?: string
           updated_at?: string
         }
@@ -125,6 +131,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      append_transcript_entries: {
+        Args: { entries: Json; session_id: string }
+        Returns: undefined
+      }
       append_transcript_entry: {
         Args: { entry: Json; session_id: string }
         Returns: undefined
