@@ -1,24 +1,14 @@
-import type { SessionTemplate, CandidateSession, Question, Json } from "@aivi/types";
+import type {
+  SessionTemplate,
+  CandidateSession,
+  Json,
+  CreateTemplateInput,
+  UpdateTemplateInput,
+} from "@aivi/types";
 
 import type { TypedSupabaseClient } from "../lib/supabase";
 
-export interface CreateTemplateInput {
-  title: string;
-  description?: string | null | undefined;
-  candidate_instructions?: string | null | undefined;
-  system_prompt?: string | null | undefined;
-  questions?: Question[] | undefined;
-  creator_id: string;
-}
-
-export interface UpdateTemplateInput {
-  title?: string | undefined;
-  description?: string | null | undefined;
-  candidate_instructions?: string | null | undefined;
-  system_prompt?: string | null | undefined;
-  questions?: Question[] | undefined;
-  is_active?: boolean | undefined;
-}
+export type CreateTemplateServiceInput = CreateTemplateInput & { creator_id: string };
 
 type UpdatePayload = {
   title?: string;
@@ -45,7 +35,7 @@ export async function listTemplates(
 
 export async function createTemplate(
   supabase: TypedSupabaseClient,
-  data: CreateTemplateInput
+  data: CreateTemplateServiceInput
 ): Promise<SessionTemplate> {
   const { data: row, error } = await supabase
     .from("session_templates")

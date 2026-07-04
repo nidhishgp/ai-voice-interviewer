@@ -57,6 +57,23 @@ describe("POST /templates", () => {
     expect(data.creator_id).toBe(CREATOR_ID);
     await app.close();
   });
+
+  it("accepts an explicit null description", async () => {
+    const app = await createApp();
+    const res = await app.inject({
+      method: "POST",
+      url: "/templates",
+      headers: { Authorization: "Bearer test-token", "content-type": "application/json" },
+      body: JSON.stringify({
+        title: "Frontend Interview",
+        description: null,
+        questions: [{ id: 1, text: "Tell me about yourself." }],
+      }),
+    });
+    expect(res.statusCode).toBe(201);
+    expect(res.json().data.description).toBeNull();
+    await app.close();
+  });
 });
 
 describe("GET /templates/:id", () => {

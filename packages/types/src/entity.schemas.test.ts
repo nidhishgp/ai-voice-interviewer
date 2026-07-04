@@ -6,7 +6,7 @@ import {
   CandidateSessionSchema,
   EvaluationSchema,
   TranscriptEntrySchema,
-} from "./schemas";
+} from "./entity.schemas";
 
 describe("QuestionSchema", () => {
   it("accepts a valid question", () => {
@@ -41,6 +41,8 @@ describe("SessionTemplateSchema", () => {
       creator_id: "323e4567-e89b-12d3-a456-426614174000",
       title: "Frontend Engineer Interview",
       description: null,
+      candidate_instructions: null,
+      system_prompt: null,
       questions: [validQuestion],
       is_active: true,
       created_at: "2026-06-23T00:00:00.000Z",
