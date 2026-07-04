@@ -1,17 +1,13 @@
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
+import { StartSessionInputSchema } from "@aivi/types";
 
 import { createSupabaseClient } from "../lib/supabase";
 import { getJoinMetadata, startSession } from "../services/sessions.service";
 
 const ShareTokenParams = z.object({
   shareToken: z.string().uuid(),
-});
-
-const StartSessionBody = z.object({
-  candidateName: z.string().min(1).max(200),
-  candidateEmail: z.email(),
 });
 
 export default async function joinPlugin(fastify: FastifyInstance) {
@@ -26,7 +22,7 @@ export default async function joinPlugin(fastify: FastifyInstance) {
 
   app.post(
     "/join/:shareToken/start",
-    { schema: { params: ShareTokenParams, body: StartSessionBody } },
+    { schema: { params: ShareTokenParams, body: StartSessionInputSchema } },
     async (request, reply) => {
       try {
         const result = await startSession(supabase, request.params.shareToken, {

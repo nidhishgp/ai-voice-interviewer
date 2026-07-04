@@ -1,4 +1,10 @@
-import type { SessionTemplate, CandidateSession, TranscriptEntry, Json } from "@aivi/types";
+import type {
+  SessionTemplate,
+  CandidateSession,
+  TranscriptEntry,
+  Json,
+  StartSessionInput,
+} from "@aivi/types";
 
 import type { TypedSupabaseClient } from "../lib/supabase";
 
@@ -6,11 +12,6 @@ export interface JoinMetadata {
   id: string;
   title: string;
   candidate_instructions: string | null;
-}
-
-export interface StartSessionInput {
-  candidateName: string;
-  candidateEmail: string;
 }
 
 export interface StartSessionResult {
