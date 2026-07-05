@@ -74,6 +74,35 @@ describe("POST /templates", () => {
     expect(res.json().data.description).toBeNull();
     await app.close();
   });
+
+  it("rejects missing questions", async () => {
+    const app = await createApp();
+    const res = await app.inject({
+      method: "POST",
+      url: "/templates",
+      headers: { Authorization: "Bearer test-token", "content-type": "application/json" },
+      body: JSON.stringify({
+        title: "Frontend Interview",
+      }),
+    });
+    expect(res.statusCode).toBe(400);
+    await app.close();
+  });
+
+  it("rejects an empty questions array", async () => {
+    const app = await createApp();
+    const res = await app.inject({
+      method: "POST",
+      url: "/templates",
+      headers: { Authorization: "Bearer test-token", "content-type": "application/json" },
+      body: JSON.stringify({
+        title: "Frontend Interview",
+        questions: [],
+      }),
+    });
+    expect(res.statusCode).toBe(400);
+    await app.close();
+  });
 });
 
 describe("GET /templates/:id", () => {
@@ -129,6 +158,29 @@ describe("PATCH /templates/:id", () => {
     });
     expect(res.statusCode).toBe(200);
     expect(res.json().data.title).toBe("Updated Title");
+    await app.close();
+  });
+
+  it("rejects an empty questions array on update", async () => {
+    const supabase = createSupabaseClient();
+    const { data: template } = await supabase
+      .from("session_templates")
+      .insert({
+        creator_id: CREATOR_ID,
+        title: "Original Title",
+        questions: [{ id: 1, text: "Tell me about yourself." }],
+      })
+      .select()
+      .single();
+
+    const app = await createApp();
+    const res = await app.inject({
+      method: "PATCH",
+      url: `/templates/${template!.id}`,
+      headers: { Authorization: "Bearer test-token", "content-type": "application/json" },
+      body: JSON.stringify({ questions: [] }),
+    });
+    expect(res.statusCode).toBe(400);
     await app.close();
   });
 });

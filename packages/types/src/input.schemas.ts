@@ -9,7 +9,7 @@ export const CreateTemplateInputSchema = z.object({
   description: z.string().max(1000).nullable().optional(),
   candidate_instructions: z.string().nullable().optional(),
   system_prompt: z.string().nullable().optional(),
-  questions: z.array(QuestionSchema).optional(),
+  questions: z.array(QuestionSchema).min(1).max(20),
 });
 
 export type CreateTemplateInput = z.infer<typeof CreateTemplateInputSchema>;
