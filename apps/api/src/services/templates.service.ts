@@ -10,13 +10,10 @@ import type { TypedSupabaseClient } from "../lib/supabase";
 
 export type CreateTemplateServiceInput = CreateTemplateInput & { creator_id: string };
 
-type UpdatePayload = {
-  title?: string;
-  description?: string | null;
-  candidate_instructions?: string | null;
-  system_prompt?: string | null;
+type WithoutUndefined<T> = { [K in keyof T]: Exclude<T[K], undefined> };
+
+type UpdatePayload = WithoutUndefined<Omit<UpdateTemplateInput, "questions">> & {
   questions?: Json;
-  is_active?: boolean;
 };
 
 export async function listTemplates(
