@@ -15,7 +15,12 @@ export async function createApp() {
     logger: {
       level: env.NODE_ENV === "test" ? "silent" : "info",
       redact: {
-        paths: ["req.headers.authorization", "SUPABASE_SERVICE_ROLE_KEY", "INTERNAL_SECRET"],
+        paths: [
+          "req.headers.authorization",
+          "SUPABASE_SERVICE_ROLE_KEY",
+          "INTERNAL_SECRET",
+          "LIVEKIT_API_SECRET",
+        ],
         censor: "[Redacted]",
       },
     },

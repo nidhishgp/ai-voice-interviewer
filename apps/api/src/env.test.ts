@@ -8,6 +8,9 @@ const schema = z.object({
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
   INTERNAL_SECRET: z.string().min(32),
   CORS_ORIGIN: z.string().url(),
+  LIVEKIT_URL: z.string().url(),
+  LIVEKIT_API_KEY: z.string().min(1),
+  LIVEKIT_API_SECRET: z.string().min(1),
 });
 
 const validEnv = {
@@ -15,6 +18,9 @@ const validEnv = {
   SUPABASE_SERVICE_ROLE_KEY: "test-service-role-key",
   INTERNAL_SECRET: "a".repeat(32),
   CORS_ORIGIN: "http://localhost:3000",
+  LIVEKIT_URL: "ws://localhost:7880",
+  LIVEKIT_API_KEY: "test-api-key",
+  LIVEKIT_API_SECRET: "test-api-secret",
 };
 
 describe("env schema", () => {
