@@ -35,4 +35,8 @@ describe("livekit token generation", () => {
 
     expect(claims.sub).toBe("Bob");
   });
+
+  it("generateCandidateToken rejects the reserved 'agent' identity", async () => {
+    await expect(generateCandidateToken("room-1", "agent")).rejects.toThrow("RESERVED_IDENTITY");
+  });
 });

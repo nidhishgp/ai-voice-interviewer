@@ -20,12 +20,13 @@ function getRoomServiceClient(): RoomServiceClient {
   );
 }
 
-export async function generateCandidateToken(
+async function buildToken(
+  identity: string,
   roomName: string,
-  candidateName: string
+  canPublishData: boolean
 ): Promise<string> {
   const at = new AccessToken(env.LIVEKIT_API_KEY, env.LIVEKIT_API_SECRET, {
-    identity: candidateName,
+    identity,
     ttl: TOKEN_TTL_SECONDS,
   });
 
@@ -34,36 +35,38 @@ export async function generateCandidateToken(
     roomJoin: true,
     canPublish: true,
     canSubscribe: true,
-    canPublishData: false,
+    canPublishData,
   });
 
   return at.toJwt();
 }
 
+export async function generateCandidateToken(
+  roomName: string,
+  candidateName: string
+): Promise<string> {
+  if (candidateName.trim().toLowerCase() === "agent") {
+    throw new Error("RESERVED_IDENTITY");
+  }
+  return buildToken(candidateName, roomName, false);
+}
+
 export async function generateAgentToken(roomName: string): Promise<string> {
-  const at = new AccessToken(env.LIVEKIT_API_KEY, env.LIVEKIT_API_SECRET, {
-    identity: "agent",
-    ttl: TOKEN_TTL_SECONDS,
-  });
-
-  at.addGrant({
-    room: roomName,
-    roomJoin: true,
-    canPublish: true,
-    canSubscribe: true,
-    canPublishData: true,
-  });
-
-  return at.toJwt();
+  return buildToken("agent", roomName, true);
 }
 
 export async function createRoom(roomName: string): Promise<Room> {
   const svc = getRoomServiceClient();
 
-  return svc.createRoom({
-    name: roomName,
-    emptyTimeout: ROOM_EMPTY_TIMEOUT_SECONDS,
-    departureTimeout: ROOM_DEPARTURE_TIMEOUT_SECONDS,
-    maxParticipants: MAX_PARTICIPANTS,
-  });
+  try {
+    return await svc.createRoom({
+      name: roomName,
+      emptyTimeout: ROOM_EMPTY_TIMEOUT_SECONDS,
+      departureTimeout: ROOM_DEPARTURE_TIMEOUT_SECONDS,
+      maxParticipants: MAX_PARTICIPANTS,
+    });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Unknown error";
+    throw new Error(`LIVEKIT_CREATE_ROOM_FAILED: ${message}`);
+  }
 }
