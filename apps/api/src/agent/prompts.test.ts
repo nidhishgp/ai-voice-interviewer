@@ -75,4 +75,16 @@ describe("buildEvaluatorPrompt", () => {
     expect(message.content).toContain("Sure — we had a database connection leak...");
     expect(result.system).not.toContain("Sure — we had a database connection leak...");
   });
+
+  it("keeps the candidate's name out of the system prompt, isolated with the transcript", () => {
+    const template = makeTemplate();
+    const session = makeSession({ candidate_name: "Zara Chen" });
+
+    const result = buildEvaluatorPrompt(session, template);
+    const [message] = result.messages;
+    if (!message) throw new Error("expected exactly one message");
+
+    expect(result.system).not.toContain("Zara Chen");
+    expect(message.content).toContain("Zara Chen");
+  });
 });

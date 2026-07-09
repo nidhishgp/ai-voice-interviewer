@@ -1,7 +1,26 @@
 import { describe, it, expect } from "vitest";
 
-import { hasReachedFollowUpLimit, hasNextQuestion, markQuestionComplete } from "./conductor";
+import {
+  getFollowUpStatus,
+  hasReachedFollowUpLimit,
+  hasNextQuestion,
+  markQuestionComplete,
+} from "./conductor";
 import { makeTemplate, makeState } from "./test-utils/fixtures";
+
+describe("getFollowUpStatus", () => {
+  it("returns count, limit, and reached together, derived from the same lookup hasReachedFollowUpLimit uses", () => {
+    const template = makeTemplate({ follow_up_depth: "deep" });
+    const state = makeState({ followUpCounts: { 0: 2 } });
+    expect(getFollowUpStatus(state, template)).toEqual({ count: 2, limit: 3, reached: false });
+  });
+
+  it("throws if the template's follow_up_depth isn't a known value", () => {
+    const template = makeTemplate({ follow_up_depth: "invalid" as never });
+    const state = makeState();
+    expect(() => getFollowUpStatus(state, template)).toThrow();
+  });
+});
 
 describe("hasReachedFollowUpLimit", () => {
   it("returns true when followUpCount reaches followUpDepth limit", () => {

@@ -7,10 +7,23 @@ export type ConductorState = {
   followUpCounts: Record<number, number>;
 };
 
+export type FollowUpStatus = {
+  count: number;
+  limit: number;
+  reached: boolean;
+};
+
+export function getFollowUpStatus(state: ConductorState, template: SessionTemplate): FollowUpStatus {
+  const count = state.followUpCounts[state.currentQuestionIndex] ?? 0;
+  const limit: number | undefined = FOLLOW_UP_DEPTH_LIMIT[template.follow_up_depth];
+  if (limit === undefined) {
+    throw new Error(`Unknown follow_up_depth value on template: ${template.follow_up_depth}`);
+  }
+  return { count, limit, reached: count >= limit };
+}
+
 export function hasReachedFollowUpLimit(state: ConductorState, template: SessionTemplate): boolean {
-  const followUpCount = state.followUpCounts[state.currentQuestionIndex] ?? 0;
-  const limit = FOLLOW_UP_DEPTH_LIMIT[template.follow_up_depth];
-  return followUpCount >= limit;
+  return getFollowUpStatus(state, template).reached;
 }
 
 export function hasNextQuestion(state: ConductorState, template: SessionTemplate): boolean {
