@@ -93,6 +93,7 @@ export type Database = {
           created_at: string
           creator_id: string
           description: string | null
+          follow_up_depth: string
           id: string
           is_active: boolean
           questions: Json
@@ -105,6 +106,7 @@ export type Database = {
           created_at?: string
           creator_id: string
           description?: string | null
+          follow_up_depth?: string
           id?: string
           is_active?: boolean
           questions?: Json
@@ -117,6 +119,7 @@ export type Database = {
           created_at?: string
           creator_id?: string
           description?: string | null
+          follow_up_depth?: string
           id?: string
           is_active?: boolean
           questions?: Json

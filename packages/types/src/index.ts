@@ -24,4 +24,11 @@ export {
   StartSessionInputSchema,
 } from "./input.schemas";
 
-export { SESSION_STATUS, LIVEKIT_EVENTS, ROUTES, LLM_PROVIDER } from "./constants";
+export {
+  SESSION_STATUS,
+  LIVEKIT_EVENTS,
+  ROUTES,
+  LLM_PROVIDER,
+  FOLLOW_UP_DEPTH,
+  FOLLOW_UP_DEPTH_VALUES,
+} from "./constants";
