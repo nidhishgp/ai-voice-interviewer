@@ -31,7 +31,9 @@ function sanitizeTranscriptEntryText(text: string): string {
 }
 
 function wrapInTags(label: string, content: string): string {
-  return `<${label}>\n${content}\n</${label}>`;
+  const ownTagPattern = new RegExp(`</?${label}>`, "gi");
+  const contentWithoutForgedBoundary = content.replaceAll(ownTagPattern, "");
+  return `<${label}>\n${contentWithoutForgedBoundary}\n</${label}>`;
 }
 
 function delimit(label: string, content: string): string {
