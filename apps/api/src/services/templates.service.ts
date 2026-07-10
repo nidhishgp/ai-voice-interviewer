@@ -43,6 +43,7 @@ export async function createTemplate(
       candidate_instructions: data.candidate_instructions ?? null,
       system_prompt: data.system_prompt ?? null,
       questions: data.questions as unknown as Json,
+      ...(data.follow_up_depth !== undefined && { follow_up_depth: data.follow_up_depth }),
     })
     .select()
     .single();
@@ -82,6 +83,7 @@ export async function updateTemplate(
     }),
     ...(data.system_prompt !== undefined && { system_prompt: data.system_prompt }),
     ...(data.questions !== undefined && { questions: data.questions as unknown as Json }),
+    ...(data.follow_up_depth !== undefined && { follow_up_depth: data.follow_up_depth }),
     ...(data.is_active !== undefined && { is_active: data.is_active }),
   };
 

@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+import { FOLLOW_UP_DEPTH_VALUES } from "./constants";
 import { QuestionSchema } from "./entity.schemas";
 
 // Template input schemas
@@ -10,6 +11,7 @@ export const CreateTemplateInputSchema = z.object({
   candidate_instructions: z.string().nullable().optional(),
   system_prompt: z.string().nullable().optional(),
   questions: z.array(QuestionSchema).min(1).max(20),
+  follow_up_depth: z.enum(FOLLOW_UP_DEPTH_VALUES).optional(),
 });
 
 export type CreateTemplateInput = z.infer<typeof CreateTemplateInputSchema>;

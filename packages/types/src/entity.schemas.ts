@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { FOLLOW_UP_DEPTH_VALUES } from "./constants";
+
 // Question
 
 export const QuestionSchema = z.object({
@@ -20,6 +22,7 @@ export const SessionTemplateSchema = z.object({
   candidate_instructions: z.string().nullable(),
   system_prompt: z.string().nullable(),
   questions: z.array(QuestionSchema).min(1).max(20),
+  follow_up_depth: z.enum(FOLLOW_UP_DEPTH_VALUES),
   is_active: z.boolean(),
   created_at: z.iso.datetime(),
   updated_at: z.iso.datetime(),

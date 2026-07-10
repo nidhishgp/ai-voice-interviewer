@@ -44,6 +44,7 @@ describe("SessionTemplateSchema", () => {
       candidate_instructions: null,
       system_prompt: null,
       questions: [validQuestion],
+      follow_up_depth: "light",
       is_active: true,
       created_at: "2026-06-23T00:00:00.000Z",
       updated_at: "2026-06-23T00:00:00.000Z",
