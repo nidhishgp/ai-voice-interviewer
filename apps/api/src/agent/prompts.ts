@@ -1,7 +1,7 @@
 import type { SessionTemplate, CandidateSession } from "@aivi/types";
 
-import { getFollowUpStatus } from "./conductor";
-import type { ConductorState } from "./conductor";
+import { getCurrentQuestion, getFollowUpGuidance } from "./conductor";
+import type { ConductorState, FollowUpGuidance } from "./conductor";
 
 const MAX_FIELD_LENGTH = 2000;
 const MAX_TRANSCRIPT_ENTRY_LENGTH = 4000;
@@ -40,6 +40,19 @@ function delimit(label: string, content: string): string {
   return wrapInTags(label, sanitizeUntrustedText(content));
 }
 
+function renderFollowUpGuidance(guidance: FollowUpGuidance): string {
+  switch (guidance.kind) {
+    case "exhausted":
+      return "You have used all allowed follow-ups for this question — move on immediately after the candidate answers.";
+    case "available":
+      return `You have asked ${guidance.followUpCount} of up to ${guidance.followUpLimit} allowed follow-ups for this question. If the candidate's answer is thorough, move on. Otherwise you may ask one brief, relevant follow-up within the remaining budget.`;
+    default: {
+      const exhaustiveCheck: never = guidance;
+      throw new Error(`Unhandled guidance kind: ${JSON.stringify(exhaustiveCheck)}`);
+    }
+  }
+}
+
 export function buildSystemPrompt(template: SessionTemplate): string {
   const roleContext = delimit("role_context", template.description ?? "");
   const customInstructions = delimit("custom_instructions", template.system_prompt ?? "");
@@ -53,19 +66,9 @@ export function buildSystemPrompt(template: SessionTemplate): string {
 }
 
 export function buildConductorPrompt(state: ConductorState, template: SessionTemplate): string {
-  const question = template.questions[state.currentQuestionIndex];
-  if (!question) {
-    throw new Error(
-      `No question at index ${state.currentQuestionIndex} — interview may already be complete.`
-    );
-  }
-
-  const { count: followUpCount, limit, reached } = getFollowUpStatus(state, template);
+  const question = getCurrentQuestion(state, template);
   const questionText = delimit("current_question", question.text);
-
-  const guidance = reached
-    ? "You have used all allowed follow-ups for this question — move on immediately after the candidate answers."
-    : `You have asked ${followUpCount} of up to ${limit} allowed follow-ups for this question. If the candidate's answer is thorough, move on. Otherwise you may ask one brief, relevant follow-up within the remaining budget.`;
+  const guidance = renderFollowUpGuidance(getFollowUpGuidance(state, template));
 
   return [questionText, guidance].join("\n\n");
 }

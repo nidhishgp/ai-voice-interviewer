@@ -1,4 +1,4 @@
-import type { SessionTemplate } from "@aivi/types";
+import type { Question, SessionTemplate } from "@aivi/types";
 
 import { FOLLOW_UP_DEPTH_LIMIT } from "./constants";
 
@@ -22,10 +22,6 @@ export function getFollowUpStatus(state: ConductorState, template: SessionTempla
   return { count, limit, reached: count >= limit };
 }
 
-export function hasReachedFollowUpLimit(state: ConductorState, template: SessionTemplate): boolean {
-  return getFollowUpStatus(state, template).reached;
-}
-
 export function hasNextQuestion(state: ConductorState, template: SessionTemplate): boolean {
   return state.currentQuestionIndex < template.questions.length - 1;
 }
@@ -42,4 +38,28 @@ export function markQuestionComplete(
     currentQuestionIndex: state.currentQuestionIndex + 1,
     followUpCounts: { ...state.followUpCounts },
   };
+}
+
+export function getCurrentQuestion(state: ConductorState, template: SessionTemplate): Question {
+  const question = template.questions[state.currentQuestionIndex];
+  if (!question) {
+    throw new Error(
+      `No question at index ${state.currentQuestionIndex} — interview may already be complete.`
+    );
+  }
+  return question;
+}
+
+export type FollowUpGuidance =
+  | { kind: "exhausted" }
+  | { kind: "available"; followUpCount: number; followUpLimit: number };
+
+export function getFollowUpGuidance(
+  state: ConductorState,
+  template: SessionTemplate
+): FollowUpGuidance {
+  const { count, limit, reached } = getFollowUpStatus(state, template);
+  return reached
+    ? { kind: "exhausted" }
+    : { kind: "available", followUpCount: count, followUpLimit: limit };
 }
