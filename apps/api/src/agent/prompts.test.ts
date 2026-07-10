@@ -46,6 +46,13 @@ describe("buildConductorPrompt", () => {
     expect(prompt).not.toContain("you may ask one brief");
     expect(prompt).toContain("move on immediately");
   });
+
+  it("throws when the state is out of range", () => {
+    const template = makeTemplate();
+    const state = makeState({ currentQuestionIndex: 5 });
+
+    expect(() => buildConductorPrompt(state, template)).toThrow();
+  });
 });
 
 describe("buildEvaluatorPrompt", () => {

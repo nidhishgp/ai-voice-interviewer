@@ -2,17 +2,30 @@ import { describe, it, expect } from "vitest";
 
 import {
   getFollowUpStatus,
-  hasReachedFollowUpLimit,
+  getCurrentQuestion,
+  getFollowUpGuidance,
   hasNextQuestion,
   markQuestionComplete,
 } from "./conductor";
 import { makeTemplate, makeState } from "./test-utils/fixtures";
 
 describe("getFollowUpStatus", () => {
-  it("returns count, limit, and reached together, derived from the same lookup hasReachedFollowUpLimit uses", () => {
+  it("returns count, limit, and reached together", () => {
     const template = makeTemplate({ follow_up_depth: "deep" });
     const state = makeState({ followUpCounts: { 0: 2 } });
     expect(getFollowUpStatus(state, template)).toEqual({ count: 2, limit: 3, reached: false });
+  });
+
+  it("reached is true when followUpCount reaches followUpDepth limit", () => {
+    const template = makeTemplate({ follow_up_depth: "light" });
+    const state = makeState({ followUpCounts: { 0: 1 } });
+    expect(getFollowUpStatus(state, template).reached).toBe(true);
+  });
+
+  it("reached is false on first encounter with a question", () => {
+    const template = makeTemplate({ follow_up_depth: "light" });
+    const state = makeState();
+    expect(getFollowUpStatus(state, template).reached).toBe(false);
   });
 
   it("throws if the template's follow_up_depth isn't a known value", () => {
@@ -22,17 +35,35 @@ describe("getFollowUpStatus", () => {
   });
 });
 
-describe("hasReachedFollowUpLimit", () => {
-  it("returns true when followUpCount reaches followUpDepth limit", () => {
-    const template = makeTemplate({ follow_up_depth: "light" });
-    const state = makeState({ followUpCounts: { 0: 1 } });
-    expect(hasReachedFollowUpLimit(state, template)).toBe(true);
+describe("getCurrentQuestion", () => {
+  it("returns the question at the current index", () => {
+    const template = makeTemplate();
+    const state = makeState({ currentQuestionIndex: 1 });
+    expect(getCurrentQuestion(state, template).text).toBe("How would you design a rate limiter?");
   });
 
-  it("returns false on first encounter with a question", () => {
+  it("throws when the index is out of range", () => {
+    const template = makeTemplate();
+    const state = makeState({ currentQuestionIndex: 5 });
+    expect(() => getCurrentQuestion(state, template)).toThrow();
+  });
+});
+
+describe("getFollowUpGuidance", () => {
+  it("returns kind: exhausted with no extra fields when the budget is reached", () => {
     const template = makeTemplate({ follow_up_depth: "light" });
-    const state = makeState();
-    expect(hasReachedFollowUpLimit(state, template)).toBe(false);
+    const state = makeState({ followUpCounts: { 0: 1 } });
+    expect(getFollowUpGuidance(state, template)).toEqual({ kind: "exhausted" });
+  });
+
+  it("returns kind: available with the count and limit when budget remains", () => {
+    const template = makeTemplate({ follow_up_depth: "deep" });
+    const state = makeState({ followUpCounts: { 0: 2 } });
+    expect(getFollowUpGuidance(state, template)).toEqual({
+      kind: "available",
+      followUpCount: 2,
+      followUpLimit: 3,
+    });
   });
 });
 
